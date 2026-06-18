@@ -4,7 +4,7 @@ HTML
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인 성적 대시보드</title>
+    <title>클랜원 실시간 전적 랭킹</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body { 
@@ -14,7 +14,7 @@ HTML
             background-color: #313338; color: #dbdee1; overflow: hidden; 
         }
         
-        /* 왼쪽 채널 목록 */
+        /* 왼쪽 사이드바 (디스코드 채널 스타일) */
         .sidebar { 
             width: 240px; background-color: #2b2d31; 
             display: flex; flex-direction: column; padding: 10px; 
@@ -25,108 +25,127 @@ HTML
         .channel { padding: 8px 10px; border-radius: 4px; color: #949ba4; text-decoration: none; display: block; margin-bottom: 2px; font-size: 15px; }
         .channel.active { background-color: #404249; color: #f2f3f5; font-weight: 500; }
 
-        /* 가운데 메인 성적표 (심플 버전) */
+        /* 가운데 메인 화면 (전적 랭킹판) */
         .main-content { flex: 1; padding: 30px; overflow-y: auto; background-color: #313338; }
         .main-header { font-size: 26px; font-weight: bold; color: #f2f3f5; margin-bottom: 10px; padding-bottom: 15px; border-bottom: 1px solid #3f4147; }
         .main-desc { color: #b5bac1; font-size: 14px; margin-bottom: 25px; }
         
+        /* 랭킹 테이블 스타일 */
         .stat-table { 
             width: 100%; border-collapse: collapse; margin-top: 15px; 
             background-color: #2b2d31; border-radius: 8px; overflow: hidden; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .stat-table th, .stat-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid #3f4147; }
+        .stat-table th, .stat-table td { padding: 14px 18px; text-align: center; border-bottom: 1px solid #3f4147; }
         .stat-table th { background-color: #1e1f22; color: #f2f3f5; font-weight: 600; font-size: 15px; }
-        .stat-table td { font-size: 16px; }
-        .stat-table tr:last-child td { border-bottom: none; }
-
-        /* 오른쪽 클랜원 리스트 (62명) */
-        .member-list { width: 260px; background-color: #2b2d31; padding: 10px; overflow-y: auto; border-left: 1px solid #1f2023; flex-shrink: 0; }
-        .role-title { font-size: 12px; font-weight: bold; color: #949ba4; margin: 20px 0 6px 8px; letter-spacing: 0.5px; }
-        .member { padding: 6px 10px; font-size: 14px; color: #949ba4; display: flex; align-items: center; border-radius: 4px; }
-        .member.me { color: #f2f3f5; font-weight: bold; }
-        .status-dot { width: 8px; height: 8px; background-color: #23a55a; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
-        .status-dot.offline { background-color: #80848e; }
-        .status-dot.idle { background-color: #f0b232; }
+        .stat-table td { font-size: 15px; }
+        
+        /* 상위권 순위 강조 효과 */
+        .rank-1 { color: #f0b232; font-weight: bold; } /* 1등 금색 */
+        .rank-2 { color: #e6e6e6; font-weight: bold; } /* 2등 은색 */
+        .rank-3 { color: #cd7f32; font-weight: bold; } /* 3등 동색 */
     </style>
 </head>
 <body>
 
-    <!-- 왼쪽 메뉴 -->
+    <!-- 왼쪽 메뉴 (디스코드 스타일) -->
     <div class="sidebar">
-        <div class="server-title">🏆 내 성적 대시보드</div>
-        <div class="category">📊 ┃ MAIN-STATS</div>
-        <a href="#" class="channel active"># 종합-능력치</a>
+        <div class="server-title">🏆 클랜 전적 관리 시스템</div>
+        <div class="category">📊 ┃ RANKING</div>
+        <a href="#" class="channel active"># 클랜원-전체랭킹</a>
     </div>
 
-    <!-- 가운데 메인 화면 (★여기서 성적을 수정하시면 됩니다★) -->
+    <!-- 가운데 메인 화면 (실시간 랭킹 자동 출력) -->
     <div class="main-content">
-        <div class="main-header"># 종합-능력치</div>
-        <div class="main-desc">나의 현재 시즌 전적 기록판입니다.</div>
+        <div class="main-header"># 클랜원 실시간 랭킹 (총 62명)</div>
+        <div class="main-desc">승률이 높은 순서대로 순위가 자동 정렬됩니다. (판수가 같으면 승리가 많은 순)</div>
         
         <table class="stat-table">
             <thead>
                 <tr>
-                    <th style="width: 30%;">평가 항목</th>
-                    <th style="width: 40%;">내 기록</th>
-                    <th style="width: 30%;">상태</th>
+                    <th style="width: 15%;">순위 (Rank)</th>
+                    <th style="width: 35%;">닉네임</th>
+                    <th style="width: 15%;">승 (Win)</th>
+                    <th style="width: 15%;">패 (Lose)</th>
+                    <th style="width: 20%;">승률 (Win Rate)</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><b>현재 티어</b></td>
-                    <!-- ★여기 수정★ 티어 이름을 적으세요 (예: Diamond II, Platinum I 등) -->
-                    <td style="color: #5865f2; font-weight: bold;">Diamond II</td> 
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td><b>총 전적 (승/패)</b></td>
-                    <!-- ★여기 수정★ 판수를 적으세요 (예: 50승 40패) -->
-                    <td style="font-weight: bold; color: #f2f3f5;">35승 25패</td> 
-                    <td><span style="color: #23a55a;">+10승 리드</span></td>
-                </tr>
-                <tr>
-                    <td><b>현재 승률</b></td>
-                    <!-- ★여기 수정★ 승률 퍼센트를 적으세요 (예: 58.3%) -->
-                    <td style="color: #23a55a; font-weight: bold;">58.3%</td> 
-                    <td><span style="color: #23a55a;">🔥 양호</span></td>
-                </tr>
-                <tr>
-                    <td><b>평균 KDA</b></td>
-                    <!-- ★여기 수정★ KDA를 적으세요 (예: 3.42) -->
-                    <td style="font-weight: bold; color: #f2f3f5;">3.42 : 1</td> 
-                    <td>-</td>
-                </tr>
+            <tbody id="ranking-table-body">
+                <!-- 자바스크립트가 여기에 자동으로 정렬해서 집어넣습니다. -->
             </tbody>
         </table>
     </div>
 
-    <!-- 오른쪽 클랜원 목록 (총 62명 완벽 고정) -->
-    <div class="member-list">
-        <div class="role-title">👑 MASTER — 1</div>
-        <div class="member"><div class="status-dot"></div>클랜마스터</div>
-        
-        <div class="role-title">⚔️ SUB-MASTER — 2</div>
-        <div class="member"><div class="status-dot"></div>부마스터1</div>
-        <div class="member"><div class="status-dot"></div>부마스터2</div>
-        
-        <div class="role-title">🛡️ ELITE — 9</div>
-        <div class="member me"><div class="status-dot"></div>나 (성적 기록 중)</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버1</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버2</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버3</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버4</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버5</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버6</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버7</div>
-        <div class="member"><div class="status-dot"></div>엘리트멤버8</div>
-        
-        <div class="role-title">🏃 ACTIVE — 35</div>
-        <div class="member"><div class="status-dot"></div>활동대원1</div><div class="member"><div class="status-dot"></div>활동대원2</div><div class="member"><div class="status-dot"></div>활동대원3</div><div class="member"><div class="status-dot offline"></div>활동대원4</div><div class="member"><div class="status-dot"></div>활동대원5</div><div class="member"><div class="status-dot"></div>활동대원6</div><div class="member"><div class="status-dot idle"></div>활동대원7</div><div class="member"><div class="status-dot"></div>활동대원8</div><div class="member"><div class="status-dot"></div>활동대원9</div><div class="member"><div class="status-dot"></div>활동대원10</div><div class="member"><div class="status-dot"></div>활동대원11</div><div class="member"><div class="status-dot offline"></div>활동대원12</div><div class="member"><div class="status-dot"></div>활동대원13</div><div class="member"><div class="status-dot"></div>활동대원14</div><div class="member"><div class="status-dot"></div>활동대원15</div><div class="member"><div class="status-dot offline"></div>활동대원16</div><div class="member"><div class="status-dot"></div>활동대원17</div><div class="member"><div class="status-dot"></div>활동대원18</div><div class="member"><div class="status-dot"></div>활동대원19</div><div class="member"><div class="status-dot offline"></div>활동대원20</div><div class="member"><div class="status-dot"></div>활동대원21</div><div class="member"><div class="status-dot"></div>활동대원22</div><div class="member"><div class="status-dot"></div>활동대원23</div><div class="member"><div class="status-dot offline"></div>활동대원24</div><div class="member"><div class="status-dot"></div>활동대원25</div><div class="member"><div class="status-dot"></div>활동대원26</div><div class="member"><div class="status-dot"></div>활동대원27</div><div class="member"><div class="status-dot offline"></div>활동대원28</div><div class="member"><div class="status-dot"></div>활동대원29</div><div class="member"><div class="status-dot"></div>활동대원30</div><div class="member"><div class="status-dot"></div>활동대원31</div><div class="member"><div class="status-dot offline"></div>활동대원32</div><div class="member"><div class="status-dot"></div>활동대원33</div><div class="member"><div class="status-dot"></div>활동대원34</div><div class="member"><div class="status-dot"></div>활동대원35</div>
-        
-        <div class="role-title">🌱 NEWBIE — 15</div>
-        <div class="member"><div class="status-dot"></div>신입회원1</div><div class="member"><div class="status-dot"></div>신입회원2</div><div class="member"><div class="status-dot offline"></div>신입회원3</div><div class="member"><div class="status-dot"></div>신입회원4</div><div class="member"><div class="status-dot"></div>신입회원5</div><div class="member"><div class="status-dot offline"></div>신입회원6</div><div class="member"><div class="status-dot"></div>신입회원7</div><div class="member"><div class="status-dot"></div>신입회원8</div><div class="member"><div class="status-dot offline"></div>신입회원9</div><div class="member"><div class="status-dot"></div>신입회원10</div><div class="member"><div class="status-dot"></div>신입회원11</div><div class="member"><div class="status-dot offline"></div>신입회원12</div><div class="member"><div class="status-dot"></div>신입회원13</div><div class="member"><div class="status-dot"></div>신입회원14</div><div class="member"><div class="status-dot offline"></div>신입회원15</div>
-    </div>
+    <!-- 🛠️ 여기는 자동 계산 시스템 구역입니다 (건드리지 마세요) -->
+    <script>
+        // ★형님은 여기 아래에 있는 62명의 [닉네임, 승, 패] 숫자만 지우고 수정하시면 됩니다!
+        const clanMembers = [
+            // [ "닉네임", 승리수, 패배수 ] 형식입니다. 쉼표(,) 조심하세요!
+            [ "클랜마스터", 45, 20 ],
+            [ "부마스터1", 40, 22 ],
+            [ "부마스터2", 35, 25 ],
+            [ "나_김재혁", 50, 15 ], // 내 전적 입력란
+            [ "엘리트멤버1", 22, 11 ],
+            [ "엘리트멤버2", 19, 15 ],
+            [ "엘리트멤버3", 30, 28 ],
+            [ "엘리트멤버4", 15, 10 ],
+            [ "엘리트멤버5", 12, 8 ],
+            [ "엘리트멤버6", 8, 4 ],
+            [ "엘리트멤버7", 5, 2 ],
+            [ "엘리트멤버8", 1, 0 ],
+            
+            // 활동대원 35명 시작
+            [ "활동대원1", 25, 20 ], [ "활동대원2", 14, 14 ], [ "활동대원3", 9, 12 ], [ "활동대원4", 33, 21 ], [ "활동대원5", 18, 16 ],
+            [ "활동대원6", 5, 9 ], [ "활동대원7", 21, 15 ], [ "활동대원8", 11, 11 ], [ "활동대원9", 4, 3 ], [ "활동대원10", 0, 2 ],
+            [ "활동대원11", 17, 13 ], [ "활동대원12", 22, 25 ], [ "활동대원13", 8, 8 ], [ "활동대원14", 19, 14 ], [ "활동대원15", 30, 32 ],
+            [ "활동대원16", 12, 10 ], [ "활동대원17", 7, 5 ], [ "활동대원18", 3, 3 ], [ "활동대원19", 15, 12 ], [ "활동대원20", 26, 24 ],
+            [ "활동대원21", 10, 8 ], [ "활동대원22", 6, 7 ], [ "활동대원23", 2, 5 ], [ "활동대원24", 14, 11 ], [ "활동대원25", 21, 19 ],
+            [ "활동대원26", 9, 8 ], [ "활동대원27", 5, 4 ], [ "활동대원28", 1, 2 ], [ "활동대원29", 18, 15 ], [ "활동대원30", 22, 20 ],
+            [ "활동대원31", 13, 11 ], [ "활동대원32", 7, 9 ], [ "활동대원33", 4, 6 ], [ "활동대원34", 16, 13 ], [ "활동대원35", 20, 18 ],
 
+            // 신입회원 15명 시작
+            [ "신입회원1", 10, 5 ], [ "신입회원2", 7, 3 ], [ "신입회원3", 5, 5 ], [ "신입회원4", 4, 2 ], [ "신입회원5", 3, 1 ],
+            [ "신입회원6", 2, 2 ], [ "신입회원7", 1, 1 ], [ "신입회원8", 0, 0 ], [ "신입회원9", 6, 4 ], [ "신입회원10", 8, 7 ],
+            [ "신입회원11", 5, 4 ], [ "신입회원12", 3, 2 ], [ "신입회원13", 2, 1 ], [ "신입회원14", 1, 3 ], [ "신입회원15", 0, 1 ]
+        ];
+
+        // 랭킹 계산 및 자동 정렬 로직
+        const processed = clanMembers.map(member => {
+            const name = member[0];
+            const wins = member[1];
+            const loses = member[2];
+            const total = wins + loses;
+            // 판수가 0판이면 승률 0% 처리, 아니면 소수점 첫째자리까지 계산
+            const winRate = total === 0 ? 0 : parseFloat(((wins / total) * 100).toFixed(1));
+            return { name, wins, loses, winRate };
+        });
+
+        // 정렬 기준: 1순위 승률 높은 순 -> 2순위 승리 많은 순
+        processed.sort((a, b) => {
+            if (b.winRate !== a.winRate) return b.winRate - a.winRate;
+            return b.wins - a.wins;
+        });
+
+        // HTML 화면에 표로 뿌려주기
+        const tbody = document.getElementById('ranking-table-body');
+        processed.forEach((member, index) => {
+            const rank = index + 1;
+            let rankClass = '';
+            if (rank === 1) rankClass = 'rank-1';
+            else if (rank === 2) rankClass = 'rank-2';
+            else if (rank === 3) rankClass = 'rank-3';
+
+            const row = `
+                <tr>
+                    <td class="${rankClass}">${rank}등</td>
+                    <td style="text-align: left; font-weight: 500; color: #f2f3f5;">${member.name}</td>
+                    <td style="color: #43b581; font-weight: bold;">${member.wins}</td>
+                    <td style="color: #f04747;">${member.loses}</td>
+                    <td style="color: #5865f2; font-weight: bold;">${member.winRate}%</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    </script>
 </body>
 </html>
