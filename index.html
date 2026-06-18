@@ -26,9 +26,9 @@ HTML
         .channel.active { background-color: #404249; color: #f2f3f5; font-weight: 500; }
 
         /* 가운데 메인 화면 (전적 랭킹판) */
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; background-color: #313338; }
-        .main-header { font-size: 26px; font-weight: bold; color: #f2f3f5; margin-bottom: 10px; padding-bottom: 15px; border-bottom: 1px solid #3f4147; }
-        .main-desc { color: #b5bac1; font-size: 14px; margin-bottom: 25px; }
+        .main-content { flex: 1; padding: 25px 20px; overflow-y: auto; background-color: #313338; }
+        .main-header { font-size: 24px; font-weight: bold; color: #f2f3f5; margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1px solid #3f4147; }
+        .main-desc { color: #b5bac1; font-size: 13px; margin-bottom: 20px; }
         
         /* 랭킹 테이블 스타일 */
         .stat-table { 
@@ -36,59 +36,66 @@ HTML
             background-color: #2b2d31; border-radius: 8px; overflow: hidden; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .stat-table th, .stat-table td { padding: 14px 18px; text-align: center; border-bottom: 1px solid #3f4147; }
-        .stat-table th { background-color: #1e1f22; color: #f2f3f5; font-weight: 600; font-size: 15px; }
-        .stat-table td { font-size: 15px; }
+        .stat-table th, .stat-table td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #3f4147; }
+        .stat-table th { background-color: #1e1f22; color: #f2f3f5; font-weight: 600; font-size: 14px; }
+        .stat-table td { font-size: 14px; }
         
-        /* 🥇 1, 2, 3등 메달 및 배경 효과 */
-        .rank-1 { color: #f0b232; font-weight: bold; font-size: 17px; } 
-        .rank-2 { color: #f2f3f5; font-weight: bold; font-size: 16px; } 
-        .rank-3 { color: #cd7f32; font-weight: bold; font-size: 16px; } 
+        /* 🥇 2등, 3등 메달 및 배경 효과 */
+        .rank-1 { color: #f0b232; font-weight: bold; } 
+        .rank-2 { color: #f2f3f5; font-weight: bold; } 
+        .rank-3 { color: #cd7f32; font-weight: bold; } 
         
         /* 상위권 줄 하이라이트 효과 */
         .bg-rank-1 { background-color: rgba(240, 178, 50, 0.05); }
         .bg-rank-2 { background-color: rgba(242, 243, 245, 0.03); }
         .bg-rank-3 { background-color: rgba(205, 127, 50, 0.03); }
+
+        /* 🔥 핸드폰(모바일) 전용 화면 최적화 세팅 */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { display: none; } /* 핸드폰에서는 왼쪽 메뉴를 과감히 숨김 */
+            .main-content { padding: 15px 10px; }
+            .main-header { font-size: 20px; }
+            .stat-table th, .stat-table td { padding: 10px 5px; font-size: 13px; }
+            .stat-table th:nth-child(1), .stat-table td:nth-child(1) { width: 22%; } /* 순위칸 너비조절 */
+            .stat-table th:nth-child(2), .stat-table td:nth-child(2) { width: 34%; } /* 닉네임칸 너비조절 */
+        }
     </style>
 </head>
 <body>
 
-    <!-- 왼쪽 메뉴 -->
     <div class="sidebar">
         <div class="server-title">🏆 클랜 전적 관리 시스템</div>
         <div class="category">📊 ┃ RANKING</div>
         <a href="#" class="channel active"># 클랜원-전체랭킹</a>
     </div>
 
-    <!-- 가운데 메인 화면 (실시간 랭킹 자동 출력) -->
     <div class="main-content">
         <div class="main-header"># BT클랜원 실시간 랭킹 </div>
-        <div class="main-desc">승률이 높은 순서대로 순위가 자동 정렬됩니다. (판수가 같으면 승리가 많은 순)</div>
+        <div class="main-desc">승률이 높은 순서대로 자동 정렬됩니다. (판수가 같으면 승리가 많은 순)</div>
         
         <table class="stat-table">
             <thead>
                 <tr>
-                    <th style="width: 18%;">순위 (Rank)</th>
-                    <th style="width: 32%;">닉네임</th>
-                    <th style="width: 15%;">승 (Win)</th>
-                    <th style="width: 15%;">패 (Lose)</th>
-                    <th style="width: 20%;">승률 (Win Rate)</th>
+                    <th>순위</th>
+                    <th>닉네임</th>
+                    <th>승</th>
+                    <th>패</th>
+                    <th>승률</th>
                 </tr>
             </thead>
             <tbody id="ranking-table-body">
-                <!-- 자바스크립트가 자동으로 메달을 달아서 정렬합니다. -->
-            </tbody>
+                </tbody>
         </table>
     </div>
 
-    <!-- 🛠️ 자동 계산 및 메달 마크 시스템 구역 -->
     <script>
         // ★형님은 여기 아래 닉네임과 승, 패 숫자만 고치시면 됩니다!
         const clanMembers = [
-            [ "타무", 100, 0 ],
-            [ "보이", 100, 2 ],
-            [ "줄라이", 100, 1 ],
-            [ "나_김재혁", 55, 12 ], // 여기 형님 전적!
+            [ "타무", 100, 1 ],
+            [ "멜로", 100, 2 ],
+            [ "보이", 100, 0 ],
+            [ "줄라이", 100, 9 ], // 여기 형님 전적!
             [ "엘리트멤버1", 22, 11 ],
             [ "엘리트멤버2", 19, 15 ],
             [ "엘리트멤버3", 30, 28 ],
@@ -137,7 +144,6 @@ HTML
             let rankClass = '';
             let rowClass = '';
 
-            // 🥇 🥈 🥉 메달 마크 조건 부여
             if (rank === 1) {
                 rankText = '🥇 1등';
                 rankClass = 'rank-1';
