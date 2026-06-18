@@ -4,303 +4,128 @@ HTML
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인 성적 대시보드 및 클랜원 명단</title>
+    <title>개인 성적 대시보드</title>
     <style>
-        /* 디스코드 다크모드 테마 색상 정의 */
         *, *::before, *::after { box-sizing: border-box; }
         body { 
-            margin: 0; 
-            padding: 0; 
+            margin: 0; padding: 0; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, '맑은 고딕'; 
-            display: flex; 
-            height: 100vh; 
-            background-color: #313338; 
-            color: #dbdee1; 
-            overflow: hidden; 
+            display: flex; height: 100vh; 
+            background-color: #313338; color: #dbdee1; overflow: hidden; 
         }
         
-        /* 왼쪽 사이드바 (디스코드 채널 목록 감성) */
+        /* 왼쪽 채널 목록 */
         .sidebar { 
-            width: 240px; 
-            background-color: #2b2d31; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 10px; 
-            border-right: 1px solid #1f2023; 
-            flex-shrink: 0;
+            width: 240px; background-color: #2b2d31; 
+            display: flex; flex-direction: column; padding: 10px; 
+            border-right: 1px solid #1f2023; flex-shrink: 0;
         }
-        .server-title { 
-            font-weight: bold; 
-            color: #f2f3f5; 
-            padding: 12px 10px; 
-            border-bottom: 1px solid #1f2023; 
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-        .category { 
-            font-size: 12px; 
-            font-weight: bold; 
-            color: #949ba4; 
-            margin: 15px 0 5px 5px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px;
-        }
-        .channel { 
-            padding: 8px 10px; 
-            border-radius: 4px; 
-            color: #949ba4; 
-            text-decoration: none; 
-            display: block; 
-            margin-bottom: 2px; 
-            font-size: 15px; 
-            transition: background-color 0.2s, color 0.2s;
-        }
-        .channel:hover { 
-            background-color: #35373c; 
-            color: #dbdee1; 
-        }
-        .channel.active { 
-            background-color: #404249; 
-            color: #f2f3f5; 
-            font-weight: 500;
-        }
+        .server-title { font-weight: bold; color: #f2f3f5; padding: 12px 10px; border-bottom: 1px solid #1f2023; margin-bottom: 15px; font-size: 16px; }
+        .category { font-size: 12px; font-weight: bold; color: #949ba4; margin: 15px 0 5px 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .channel { padding: 8px 10px; border-radius: 4px; color: #949ba4; text-decoration: none; display: block; margin-bottom: 2px; font-size: 15px; }
+        .channel.active { background-color: #404249; color: #f2f3f5; font-weight: 500; }
 
-        /* 가운데 메인 화면 (네이버 카페형 성적/데이터 대시보드) */
-        .main-content { 
-            flex: 1; 
-            padding: 30px; 
-            overflow-y: auto; 
-            background-color: #313338; 
-        }
-        .main-header { 
-            font-size: 26px; 
-            font-weight: bold; 
-            color: #f2f3f5; 
-            margin-bottom: 10px; 
-            padding-bottom: 15px;
-            border-bottom: 1px solid #3f4147; 
-        }
-        .main-desc {
-            color: #b5bac1;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
+        /* 가운데 메인 성적표 (심플 버전) */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background-color: #313338; }
+        .main-header { font-size: 26px; font-weight: bold; color: #f2f3f5; margin-bottom: 10px; padding-bottom: 15px; border-bottom: 1px solid #3f4147; }
+        .main-desc { color: #b5bac1; font-size: 14px; margin-bottom: 25px; }
+        
         .stat-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
-            background-color: #2b2d31; 
-            border-radius: 8px; 
-            overflow: hidden; 
+            width: 100%; border-collapse: collapse; margin-top: 15px; 
+            background-color: #2b2d31; border-radius: 8px; overflow: hidden; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .stat-table th, .stat-table td { 
-            padding: 14px 18px; 
-            text-align: left; 
-            border-bottom: 1px solid #3f4147; 
-        }
-        .stat-table th { 
-            background-color: #1e1f22; 
-            color: #f2f3f5; 
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .stat-table td {
-            font-size: 15px;
-        }
-        .stat-table tr:last-child td {
-            border-bottom: none;
-        }
+        .stat-table th, .stat-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid #3f4147; }
+        .stat-table th { background-color: #1e1f22; color: #f2f3f5; font-weight: 600; font-size: 15px; }
+        .stat-table td { font-size: 16px; }
+        .stat-table tr:last-child td { border-bottom: none; }
 
-        /* 오른쪽 사이드바 (디스코드 유저 리스트 - 총 62명 완벽 반영) */
-        .member-list { 
-            width: 260px; 
-            background-color: #2b2d31; 
-            padding: 10px; 
-            overflow-y: auto; 
-            border-left: 1px solid #1f2023;
-            flex-shrink: 0;
-        }
-        .role-title { 
-            font-size: 12px; 
-            font-weight: bold; 
-            color: #949ba4; 
-            margin: 20px 0 6px 8px; 
-            letter-spacing: 0.5px;
-        }
-        .member { 
-            padding: 6px 10px; 
-            font-size: 14px; 
-            color: #949ba4; 
-            display: flex; 
-            align-items: center; 
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .member:hover {
-            background-color: #35373c;
-            color: #dbdee1;
-        }
-        .member.me {
-            color: #f2f3f5;
-            font-weight: bold;
-        }
-        .status-dot { 
-            width: 8px; 
-            height: 8px; 
-            background-color: #23a55a; /* 온라인 초록색 */
-            border-radius: 50%; 
-            margin-right: 10px; 
-            flex-shrink: 0;
-        }
-        .status-dot.idle {
-            background-color: #f0b232; /* 자리비움 노란색 */
-        }
-        .status-dot.dnd {
-            background-color: #f23f43; /* 다른용무중 빨간색 */
-        }
-        .status-dot.offline {
-            background-color: #80848e; /* 오프라인 회색 */
-        }
+        /* 오른쪽 클랜원 리스트 (62명) */
+        .member-list { width: 260px; background-color: #2b2d31; padding: 10px; overflow-y: auto; border-left: 1px solid #1f2023; flex-shrink: 0; }
+        .role-title { font-size: 12px; font-weight: bold; color: #949ba4; margin: 20px 0 6px 8px; letter-spacing: 0.5px; }
+        .member { padding: 6px 10px; font-size: 14px; color: #949ba4; display: flex; align-items: center; border-radius: 4px; }
+        .member.me { color: #f2f3f5; font-weight: bold; }
+        .status-dot { width: 8px; height: 8px; background-color: #23a55a; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
+        .status-dot.offline { background-color: #80848e; }
+        .status-dot.idle { background-color: #f0b232; }
     </style>
 </head>
 <body>
 
+    <!-- 왼쪽 메뉴 -->
     <div class="sidebar">
         <div class="server-title">🏆 내 성적 대시보드</div>
-        
-        <div class="category">📌 ┃ NOTICE</div>
-        <a href="#" class="channel"># 공지사항</a>
-        <a href="#" class="channel"># 프로필-소개</a>
-
         <div class="category">📊 ┃ MAIN-STATS</div>
         <a href="#" class="channel active"># 종합-능력치</a>
-        <a href="#" class="channel"># 최근-경기결과</a>
-
-        <div class="category">📈 ┃ RECORDS</div>
-        <a href="#" class="channel"># 시즌별-성적</a>
-        <a href="#" class="channel"># 클랜전-기록</a>
-        
-        <div class="category">🎬 ┃ MEDIA</div>
-        <a href="#" class="channel"># 하이라이트</a>
-        <a href="#" class="channel"># 오답노트</a>
     </div>
 
+    <!-- 가운데 메인 화면 (★여기서 성적을 수정하시면 됩니다★) -->
     <div class="main-content">
         <div class="main-header"># 종합-능력치</div>
-        <div class="main-desc">실시간으로 기록 및 관리하는 나의 개인 성적표입니다. 오른쪽에서 클랜원 목록을 확인할 수 있습니다.</div>
+        <div class="main-desc">나의 현재 시즌 전적 기록판입니다.</div>
         
         <table class="stat-table">
             <thead>
                 <tr>
-                    <th>평가 항목</th>
-                    <th>현재 기록</th>
-                    <th>시즌 목표 (Goal)</th>
-                    <th>변동 상태</th>
+                    <th style="width: 30%;">평가 항목</th>
+                    <th style="width: 40%;">내 기록</th>
+                    <th style="width: 30%;">상태</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><b>현재 티어 (Tier)</b></td>
-                    <td style="color: #5865f2; font-weight: 600;">Diamond II</td>
-                    <td>Immortal</td>
-                    <td><span style="color: #23a55a;">📈 상승 중</span></td>
+                    <td><b>현재 티어</b></td>
+                    <!-- ★여기 수정★ 티어 이름을 적으세요 (예: Diamond II, Platinum I 등) -->
+                    <td style="color: #5865f2; font-weight: bold;">Diamond II</td> 
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><b>총 전적 (승/패)</b></td>
+                    <!-- ★여기 수정★ 판수를 적으세요 (예: 50승 40패) -->
+                    <td style="font-weight: bold; color: #f2f3f5;">35승 25패</td> 
+                    <td><span style="color: #23a55a;">+10승 리드</span></td>
+                </tr>
+                <tr>
+                    <td><b>현재 승률</b></td>
+                    <!-- ★여기 수정★ 승률 퍼센트를 적으세요 (예: 58.3%) -->
+                    <td style="color: #23a55a; font-weight: bold;">58.3%</td> 
+                    <td><span style="color: #23a55a;">🔥 양호</span></td>
                 </tr>
                 <tr>
                     <td><b>평균 KDA</b></td>
-                    <td style="font-weight: 600;">3.42 : 1</td>
-                    <td>3.80 : 1</td>
-                    <td><span style="color: #23a55a;">✨ 양호</span></td>
-                </tr>
-                <tr>
-                    <td><b>승률 (Win Rate)</b></td>
-                    <td style="color: #23a55a; font-weight: 600;">58.4%</td>
-                    <td>60.0%</td>
-                    <td><span style="color: #f23f43;">🔥 3연승 중</span></td>
-                </tr>
-                <tr>
-                    <td><b>클랜 내 기여도</b></td>
-                    <td style="color: #f0b232; font-weight: 600;">상위 5% (Elite)</td>
-                    <td>최상위 유지</td>
-                    <td><span style="color: #949ba4;">🛡️ 안정적</span></td>
+                    <!-- ★여기 수정★ KDA를 적으세요 (예: 3.42) -->
+                    <td style="font-weight: bold; color: #f2f3f5;">3.42 : 1</td> 
+                    <td>-</td>
                 </tr>
             </tbody>
         </table>
     </div>
 
+    <!-- 오른쪽 클랜원 목록 (총 62명 완벽 고정) -->
     <div class="member-list">
-        
         <div class="role-title">👑 MASTER — 1</div>
         <div class="member"><div class="status-dot"></div>클랜마스터</div>
         
         <div class="role-title">⚔️ SUB-MASTER — 2</div>
         <div class="member"><div class="status-dot"></div>부마스터1</div>
-        <div class="member"><div class="status-dot dnd"></div>부마스터2</div>
+        <div class="member"><div class="status-dot"></div>부마스터2</div>
         
         <div class="role-title">🛡️ ELITE — 9</div>
-        <div class="member me"><div class="status-dot"></div>나 (성적 확인 중)</div>
+        <div class="member me"><div class="status-dot"></div>나 (성적 기록 중)</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버1</div>
-        <div class="member"><div class="status-dot idle"></div>엘리트멤버2</div>
+        <div class="member"><div class="status-dot"></div>엘리트멤버2</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버3</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버4</div>
-        <div class="member"><div class="status-dot offline"></div>엘리트멤버5</div>
+        <div class="member"><div class="status-dot"></div>엘리트멤버5</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버6</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버7</div>
         <div class="member"><div class="status-dot"></div>엘리트멤버8</div>
         
         <div class="role-title">🏃 ACTIVE — 35</div>
-        <div class="member"><div class="status-dot"></div>활동대원1</div>
-        <div class="member"><div class="status-dot"></div>활동대원2</div>
-        <div class="member"><div class="status-dot"></div>활동대원3</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원4</div>
-        <div class="member"><div class="status-dot"></div>활동대원5</div>
-        <div class="member"><div class="status-dot"></div>활동대원6</div>
-        <div class="member"><div class="status-dot idle"></div>활동대원7</div>
-        <div class="member"><div class="status-dot"></div>활동대원8</div>
-        <div class="member"><div class="status-dot"></div>활동대원9</div>
-        <div class="member"><div class="status-dot"></div>활동대원10</div>
-        <div class="member"><div class="status-dot"></div>활동대원11</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원12</div>
-        <div class="member"><div class="status-dot"></div>활동대원13</div>
-        <div class="member"><div class="status-dot"></div>활동대원14</div>
-        <div class="member"><div class="status-dot"></div>활동대원15</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원16</div>
-        <div class="member"><div class="status-dot"></div>활동대원17</div>
-        <div class="member"><div class="status-dot"></div>활동대원18</div>
-        <div class="member"><div class="status-dot"></div>활동대원19</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원20</div>
-        <div class="member"><div class="status-dot"></div>활동대원21</div>
-        <div class="member"><div class="status-dot"></div>활동대원22</div>
-        <div class="member"><div class="status-dot"></div>활동대원23</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원24</div>
-        <div class="member"><div class="status-dot"></div>활동대원25</div>
-        <div class="member"><div class="status-dot"></div>활동대원26</div>
-        <div class="member"><div class="status-dot"></div>활동대원27</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원28</div>
-        <div class="member"><div class="status-dot"></div>활동대원29</div>
-        <div class="member"><div class="status-dot"></div>활동대원30</div>
-        <div class="member"><div class="status-dot"></div>활동대원31</div>
-        <div class="member"><div class="status-dot offline"></div>활동대원32</div>
-        <div class="member"><div class="status-dot"></div>활동대원33</div>
-        <div class="member"><div class="status-dot"></div>활동대원34</div>
-        <div class="member"><div class="status-dot"></div>활동대원35</div>
+        <div class="member"><div class="status-dot"></div>활동대원1</div><div class="member"><div class="status-dot"></div>활동대원2</div><div class="member"><div class="status-dot"></div>활동대원3</div><div class="member"><div class="status-dot offline"></div>활동대원4</div><div class="member"><div class="status-dot"></div>활동대원5</div><div class="member"><div class="status-dot"></div>활동대원6</div><div class="member"><div class="status-dot idle"></div>활동대원7</div><div class="member"><div class="status-dot"></div>활동대원8</div><div class="member"><div class="status-dot"></div>활동대원9</div><div class="member"><div class="status-dot"></div>활동대원10</div><div class="member"><div class="status-dot"></div>활동대원11</div><div class="member"><div class="status-dot offline"></div>활동대원12</div><div class="member"><div class="status-dot"></div>활동대원13</div><div class="member"><div class="status-dot"></div>활동대원14</div><div class="member"><div class="status-dot"></div>활동대원15</div><div class="member"><div class="status-dot offline"></div>활동대원16</div><div class="member"><div class="status-dot"></div>활동대원17</div><div class="member"><div class="status-dot"></div>활동대원18</div><div class="member"><div class="status-dot"></div>활동대원19</div><div class="member"><div class="status-dot offline"></div>활동대원20</div><div class="member"><div class="status-dot"></div>활동대원21</div><div class="member"><div class="status-dot"></div>활동대원22</div><div class="member"><div class="status-dot"></div>활동대원23</div><div class="member"><div class="status-dot offline"></div>활동대원24</div><div class="member"><div class="status-dot"></div>활동대원25</div><div class="member"><div class="status-dot"></div>활동대원26</div><div class="member"><div class="status-dot"></div>활동대원27</div><div class="member"><div class="status-dot offline"></div>활동대원28</div><div class="member"><div class="status-dot"></div>활동대원29</div><div class="member"><div class="status-dot"></div>활동대원30</div><div class="member"><div class="status-dot"></div>활동대원31</div><div class="member"><div class="status-dot offline"></div>활동대원32</div><div class="member"><div class="status-dot"></div>활동대원33</div><div class="member"><div class="status-dot"></div>활동대원34</div><div class="member"><div class="status-dot"></div>활동대원35</div>
         
         <div class="role-title">🌱 NEWBIE — 15</div>
-        <div class="member"><div class="status-dot"></div>신입회원1</div>
-        <div class="member"><div class="status-dot"></div>신입회원2</div>
-        <div class="member"><div class="status-dot offline"></div>신입회원3</div>
-        <div class="member"><div class="status-dot"></div>신입회원4</div>
-        <div class="member"><div class="status-dot"></div>신입회원5</div>
-        <div class="member"><div class="status-dot offline"></div>신입회원6</div>
-        <div class="member"><div class="status-dot"></div>신입회원7</div>
-        <div class="member"><div class="status-dot"></div>신입회원8</div>
-        <div class="member"><div class="status-dot offline"></div>신입회원9</div>
-        <div class="member"><div class="status-dot"></div>신입회원10</div>
-        <div class="member"><div class="status-dot"></div>신입회원11</div>
-        <div class="member"><div class="status-dot offline"></div>신입회원12</div>
-        <div class="member"><div class="status-dot"></div>신입회원13</div>
-        <div class="member"><div class="status-dot"></div>신입회원14</div>
-        <div class="member"><div class="status-dot offline"></div>신입회원15</div>
+        <div class="member"><div class="status-dot"></div>신입회원1</div><div class="member"><div class="status-dot"></div>신입회원2</div><div class="member"><div class="status-dot offline"></div>신입회원3</div><div class="member"><div class="status-dot"></div>신입회원4</div><div class="member"><div class="status-dot"></div>신입회원5</div><div class="member"><div class="status-dot offline"></div>신입회원6</div><div class="member"><div class="status-dot"></div>신입회원7</div><div class="member"><div class="status-dot"></div>신입회원8</div><div class="member"><div class="status-dot offline"></div>신입회원9</div><div class="member"><div class="status-dot"></div>신입회원10</div><div class="member"><div class="status-dot"></div>신입회원11</div><div class="member"><div class="status-dot offline"></div>신입회원12</div><div class="member"><div class="status-dot"></div>신입회원13</div><div class="member"><div class="status-dot"></div>신입회원14</div><div class="member"><div class="status-dot offline"></div>신입회원15</div>
     </div>
 
 </body>
