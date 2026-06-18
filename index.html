@@ -40,15 +40,20 @@ HTML
         .stat-table th { background-color: #1e1f22; color: #f2f3f5; font-weight: 600; font-size: 15px; }
         .stat-table td { font-size: 15px; }
         
-        /* 상위권 순위 강조 효과 */
-        .rank-1 { color: #f0b232; font-weight: bold; } /* 1등 금색 */
-        .rank-2 { color: #e6e6e6; font-weight: bold; } /* 2등 은색 */
-        .rank-3 { color: #cd7f32; font-weight: bold; } /* 3등 동색 */
+        /* 🥇 1, 2, 3등 메달 및 배경 효과 */
+        .rank-1 { color: #f0b232; font-weight: bold; font-size: 17px; } 
+        .rank-2 { color: #f2f3f5; font-weight: bold; font-size: 16px; } 
+        .rank-3 { color: #cd7f32; font-weight: bold; font-size: 16px; } 
+        
+        /* 상위권 줄 하이라이트 효과 */
+        .bg-rank-1 { background-color: rgba(240, 178, 50, 0.05); }
+        .bg-rank-2 { background-color: rgba(242, 243, 245, 0.03); }
+        .bg-rank-3 { background-color: rgba(205, 127, 50, 0.03); }
     </style>
 </head>
 <body>
 
-    <!-- 왼쪽 메뉴 (디스코드 스타일) -->
+    <!-- 왼쪽 메뉴 -->
     <div class="sidebar">
         <div class="server-title">🏆 클랜 전적 관리 시스템</div>
         <div class="category">📊 ┃ RANKING</div>
@@ -63,28 +68,27 @@ HTML
         <table class="stat-table">
             <thead>
                 <tr>
-                    <th style="width: 15%;">순위 (Rank)</th>
-                    <th style="width: 35%;">닉네임</th>
+                    <th style="width: 18%;">순위 (Rank)</th>
+                    <th style="width: 32%;">닉네임</th>
                     <th style="width: 15%;">승 (Win)</th>
                     <th style="width: 15%;">패 (Lose)</th>
                     <th style="width: 20%;">승률 (Win Rate)</th>
                 </tr>
             </thead>
             <tbody id="ranking-table-body">
-                <!-- 자바스크립트가 여기에 자동으로 정렬해서 집어넣습니다. -->
+                <!-- 자바스크립트가 자동으로 메달을 달아서 정렬합니다. -->
             </tbody>
         </table>
     </div>
 
-    <!-- 🛠️ 여기는 자동 계산 시스템 구역입니다 (건드리지 마세요) -->
+    <!-- 🛠️ 자동 계산 및 메달 마크 시스템 구역 -->
     <script>
-        // ★형님은 여기 아래에 있는 62명의 [닉네임, 승, 패] 숫자만 지우고 수정하시면 됩니다!
+        // ★형님은 여기 아래 닉네임과 승, 패 숫자만 고치시면 됩니다!
         const clanMembers = [
-            // [ "닉네임", 승리수, 패배수 ] 형식입니다. 쉼표(,) 조심하세요!
-            [ "TaMoo", 2, 3 ],
-            [ "Boy", 5, 2 ],
-            [ "Melo", 1, 10 ],
-            [ "줄라이", 5, 10 ], // 내 전적 입력란
+            [ "타무", 100, 0 ],
+            [ "보이", 100, 2 ],
+            [ "줄라이", 100, 1 ],
+            [ "나_김재혁", 55, 12 ], // 여기 형님 전적!
             [ "엘리트멤버1", 22, 11 ],
             [ "엘리트멤버2", 19, 15 ],
             [ "엘리트멤버3", 30, 28 ],
@@ -109,35 +113,48 @@ HTML
             [ "신입회원11", 5, 4 ], [ "신입회원12", 3, 2 ], [ "신입회원13", 2, 1 ], [ "신입회원14", 1, 3 ], [ "신입회원15", 0, 1 ]
         ];
 
-        // 랭킹 계산 및 자동 정렬 로직
+        // 데이터 계산
         const processed = clanMembers.map(member => {
             const name = member[0];
             const wins = member[1];
             const loses = member[2];
             const total = wins + loses;
-            // 판수가 0판이면 승률 0% 처리, 아니면 소수점 첫째자리까지 계산
             const winRate = total === 0 ? 0 : parseFloat(((wins / total) * 100).toFixed(1));
             return { name, wins, loses, winRate };
         });
 
-        // 정렬 기준: 1순위 승률 높은 순 -> 2순위 승리 많은 순
+        // 승률 정렬
         processed.sort((a, b) => {
             if (b.winRate !== a.winRate) return b.winRate - a.winRate;
             return b.wins - a.wins;
         });
 
-        // HTML 화면에 표로 뿌려주기
+        // 표 화면 그리기
         const tbody = document.getElementById('ranking-table-body');
         processed.forEach((member, index) => {
             const rank = index + 1;
+            let rankText = `${rank}등`;
             let rankClass = '';
-            if (rank === 1) rankClass = 'rank-1';
-            else if (rank === 2) rankClass = 'rank-2';
-            else if (rank === 3) rankClass = 'rank-3';
+            let rowClass = '';
+
+            // 🥇 🥈 🥉 메달 마크 조건 부여
+            if (rank === 1) {
+                rankText = '🥇 1등';
+                rankClass = 'rank-1';
+                rowClass = 'bg-rank-1';
+            } else if (rank === 2) {
+                rankText = '🥈 2등';
+                rankClass = 'rank-2';
+                rowClass = 'bg-rank-2';
+            } else if (rank === 3) {
+                rankText = '🥉 3등';
+                rankClass = 'rank-3';
+                rowClass = 'bg-rank-3';
+            }
 
             const row = `
-                <tr>
-                    <td class="${rankClass}">${rank}등</td>
+                <tr class="${rowClass}">
+                    <td class="${rankClass}">${rankText}</td>
                     <td style="text-align: left; font-weight: 500; color: #f2f3f5;">${member.name}</td>
                     <td style="color: #43b581; font-weight: bold;">${member.wins}</td>
                     <td style="color: #f04747;">${member.loses}</td>
